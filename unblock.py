@@ -26,10 +26,10 @@ blocked_zones = []
 session = requests.session()
 
 if args.read:
-  with open('/opt/blacklist/blocked_domains.txt', 'r') as f:
+  with open('/opt/blacklist/results/blocked_domains.txt', 'r') as f:
     for line in f:
       blocked_domains.append(line.rstrip())
-  with open('/opt/blacklist/blocked_zones.txt', 'r') as f:
+  with open('/opt/blacklist/results/blocked_zones.txt', 'r') as f:
     for line in f:
       blocked_zones.append(line.rstrip())
 else:
@@ -38,7 +38,7 @@ else:
     for j in i['domains']:
       blocked_domains.append(j)
 
-  with open('/opt/blacklist/blocked_domains.txt', 'w') as f:
+  with open('/opt/blacklist/results/blocked_domains.txt', 'w') as f:
     for domain in blocked_domains:
       f.write(f'{domain}\n')
 
@@ -51,7 +51,7 @@ else:
       if azone not in blocked_zones:
         blocked_zones.append(azone)
 
-  with open('/opt/blacklist/blocked_zones.txt', 'w') as f:
+  with open('/opt/blacklist/results/blocked_zones.txt', 'w') as f:
     for azone in blocked_zones:
       f.write(f'{azone}\n')
 
@@ -63,6 +63,6 @@ for azone in blocked_zones:
   if r.status == 200:
     data = r.data.decode('utf-8')
     ip = re.findall(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}', data)
-    with open(f'/opt/blacklist/blocked_{azone}.txt', 'w') as f:
+    with open(f'/opt/blacklist/results/blocked_{azone}.txt', 'w') as f:
       for address in ip:
         f.write(f'{address}\n')
