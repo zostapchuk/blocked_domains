@@ -1,0 +1,2 @@
+static.rutracker.cc;AS13335
+vpngate.net;AS37917
