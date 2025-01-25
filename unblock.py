@@ -90,23 +90,21 @@ def get_cidr_by_as(zone, dir):
   http = urllib3.PoolManager(10, headers=user_agent)
   url = f'https://bgp.he.net/{zone}'
   r = http.request('GET', url)
-  whipe_file('{basedir}/{dir}/bird.txt')
-  with open(f'{basedir}/{dir}/bird.txt', 'a') as birdRouteFile:
-    if r.status == 200:
-      data = r.data.decode('utf-8')
-      ip = re.findall(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}', data)
-      if '0.0.0.0/0' in ip:
-        ip.remove('0.0.0.0/0')
-      cidrs = CIDRs(set(ip))
+  if r.status == 200:
+    data = r.data.decode('utf-8')
+    ip = re.findall(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}', data)
+    while '0.0.0.0/0' in ip:
+      ip.remove('0.0.0.0/0')
+    cidrs = CIDRs(set(ip))
+    with open(f'{basedir}/{dir}/{zone}.txt', 'w') as f:
       for cidr in cidrs.summarize_cidrs():
-        birdRouteFile.write(f'route {cidr} reject;\n')
+        f.write(f'{cidr}\n')
+      logging.info(f'Done file: {basedir}/{dir}/{zone}.txt')
 
-      with open(f'{basedir}/{dir}/{zone}.txt', 'w') as f:
-        for cidr in cidrs.summarize_cidrs():
-          f.write(f'{cidr}\n')
-        logging.info(f'Get CIDRs for zone {zone} success, file: {basedir}/{dir}/{zone}.txt')
-    else:
-      logging.warning(f'Get CIDRs for zone {zone} failure')
+    with open(f'{basedir}/{dir}/bird_{zone}.txt', 'w') as f:
+      for cidr in cidrs.summarize_cidrs():
+        f.write(f'route {cidr} reject;\n')
+      logging.info(f'Done file: {basedir}/{dir}/bird_{zone}.txt')
 
 if args.a:
   dir = 'antifilter'
